@@ -1,0 +1,58 @@
+/* Mobile-first responsive styles */
+:root{
+  --bg:#0b1220;
+  --card:#0f1724;
+  --muted:#9aa3b2;
+  --accent:#ff4d4f;
+  --glass:rgba(255,255,255,0.03);
+  --radius:14px;
+  --gap:12px;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#05060a 0%, #0b1220 100%);color:#e6eef6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.container{max-width:980px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+
+.header{display:flex;align-items:center;gap:12px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:56px;height:56px;border-radius:12px;object-fit:cover;background:linear-gradient(135deg,var(--accent),#ff7a59);display:block;padding:8px}
+h1{font-size:18px;margin:0}
+.sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+.card{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:0 6px 20px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+.muted{color:var(--muted)}
+.small{font-size:12px;color:var(--muted)}
+
+/* Actions list */
+.action-list{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:10px}
+.action-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02)}
+.action-item .info{max-width:68%}
+.action-item .title{font-weight:700}
+.action-item .note{font-size:13px;color:var(--muted);margin-top:4px}
+
+.controls{display:flex;align-items:center;gap:8px}
+.status{font-size:13px;color:var(--muted)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;text-decoration:none;color:inherit}
+.btn.primary{background:linear-gradient(90deg,var(--accent),#ff7a59);color:#fff}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+/* Prompt area */
+.prompt-box.locked{height:140px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.02)}
+.lock-inner{text-align:center;color:var(--muted)}
+.prompt-text{white-space:pre-wrap;background:transparent;padding:12px;border-radius:10px;line-height:1.3;border:1px solid rgba(255,255,255,0.02);margin-top:12px}
+
+.prompt-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.progress{margin-top:12px;font-weight:700;color:var(--muted)}
+
+/* Footer */
+.footer{display:flex;justify-content:center;align-items:center;padding:6px;color:var(--muted);font-size:13px}
+
+/* Desktop tweaks */
+@media(min-width:700px){
+  .container{padding:30px}
+  h1{font-size:22px}
+  .brand .logo{width:72px;height:72px}
+}
