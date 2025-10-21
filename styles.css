@@ -75,11 +75,7 @@ html, body {
 .btn:focus { outline:none; box-shadow:0 0 0 4px rgba(0,0,0,0.2); }
 
 /* inner moving gradient (inside button) */
-.btn .live-gradient {
-  position:absolute; inset:2px; border-radius:10px;
-  background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
-  filter: blur(18px); opacity:0; transition: opacity .25s, transform .25s; z-index:1; pointer-events:none;
-}
+.btn 
 .btn .inner { position:relative; z-index:3; }
 
 /* spinner */
@@ -90,7 +86,7 @@ html, body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* verifying state: show inner gradient, spinner */
-.btn.verifying .live-gradient { opacity:0.95; transform:translateX(-10%); animation:moveGradient 3s linear infinite; }
+.btn.verifying 
 .btn.verifying .spinner { display:inline-block; }
 .btn .count { display:none; font-weight:900; font-size:13px; opacity:0.95; position:relative; z-index:3; margin-left:6px; }
 
@@ -159,8 +155,57 @@ html, body {
 }
 
 
+/* --- Added outline glow and verified replacement styles --- */
 
-/* Make the Click-to-verify button glow by default */
-.click-verify .live-gradient { opacity:0.95; transform:translateX(0); animation:moveGradient 3s linear infinite; }
-/* But when the button is in verifying state, remove the glow (no "rubbish glowing effect") */
-.verifying .live-gradient { opacity:0 !important; animation: none !important; transform:none !important; }
+/* Outline glow pulse (aqua) around the button's rounded edge */
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.0), 0 0 0 6px rgba(0,212,255,0.0);
+  }
+  50% {
+    box-shadow: 0 0 6px 2px rgba(0, 212, 255, 0.12), 0 0 14px 6px rgba(0,212,255,0.06);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.0), 0 0 0 6px rgba(0,212,255,0.0);
+  }
+}
+
+/* Apply outline glow to click-verify buttons (only outline, no gradient fill movement) */
+.click-verify.btn {
+  border-radius: 18px;
+  position: relative;
+  z-index: 2;
+  background-clip: padding-box;
+  animation: pulseGlow 2.6s ease-in-out infinite;
+  transition: box-shadow .2s ease, opacity .2s ease;
+}
+
+/* While verifying, remove the glow (no animation, no outline) */
+.click-verify.btn.verifying,
+.btn.verifying {
+  animation: none !important;
+  box-shadow: none !important;
+}
+
+/* When a single button has completed (done), keep it without glow but look slightly muted */
+.btn.done {
+  opacity: 0.9;
+  box-shadow: none !important;
+  animation: none !important;
+  cursor: default;
+}
+
+/* The verified replacement button style (solid green, rounded, centered within the same container) */
+.verified-replacement {
+  display:inline-block;
+  padding:14px 24px;
+  border-radius:22px;
+  background: linear-gradient(180deg, #1da854, #0f8f3a);
+  color: #eafcec;
+  font-weight:900;
+  min-width:220px;
+  text-align:center;
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 6px 18px rgba(9,78,37,0.12);
+  font-size:16px;
+}

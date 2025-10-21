@@ -1,43 +1,6 @@
 // Unlock method adapted from uploaded site: manual open + countdown unlock
 const ACTION_IDS = ['btn_action_sub','btn_action_wh_chan','btn_action_wh_group'];
 const REQUIRED_SECONDS = 15;
-function unlock(id, link) {
-  // open the link in a new tab (user gesture)
-  window.open(link, '_blank');
-
-  const btn = document.getElementById(id);
-  const statusId = id.replace('btn_','status_');
-  const statusEl = document.getElementById(statusId);
-  let countdown = REQUIRED_SECONDS;
-
-  // show verifying state
-  btn.classList.add('verifying');
-  btn.querySelector('.inner').textContent = `Verifying... ${countdown}s`;
-  btn.style.opacity = '0.6';
-  btn.style.pointerEvents = 'none';
-  statusEl.textContent = 'Verifying...';
-
-  const timer = setInterval(()=>{
-    countdown--;
-    const inner = btn.querySelector('.inner');
-    if (countdown <= 0) {
-      clearInterval(timer);
-      // mark as unlocked for this button
-      btn.classList.remove('verifying');
-      btn.querySelector('.inner').textContent = '✅ Verified';
-      statusEl.innerHTML = '<span class="verified-badge">Verified</span>';
-      btn.style.opacity = '1';
-      btn.style.pointerEvents = 'auto';
-      // disable further clicks and mark done
-      btn.setAttribute('data-verified','1');
-      btn.removeAttribute('onclick'); // remove unlock handler
-      updateProgress();
-      checkAllAndReveal();
-      return;
-    } else {
-      inner.textContent = `Verifying... ${countdown}s`;
-      statusEl.textContent = `Verifying... ${countdown}s`;
-    }
   }, 1000);
 }
 
@@ -80,4 +43,66 @@ document.getElementById('copyBtn').addEventListener('click', ()=>{
 // initialize progress from any verified attributes (if user reloads)
 window.addEventListener('load', ()=>{
   updateProgress();
+});
+
+
+/* --- Added outline glow/verification behavior --- */
+
+/* --- Enhanced verification flow: outline glow -> verifying -> done -> show single Verified button --- */
+const ACTION_IDS = ['btn_action_sub','btn_action_wh_chan','btn_action_wh_group'];
+const REQUIRED_SECONDS = 6;
+function unlock(id, link) {
+  try { window.open(link, '_blank'); } catch(e) { console.warn('open failed', e); }
+  const btn = document.getElementById(id);
+  if(!btn) return;
+  let countdown = REQUIRED_SECONDS;
+  btn.classList.add('verifying');
+  const inner = btn.querySelector('.inner');
+  if(inner) inner.textContent = `Verifying... ${countdown}s`;
+  const iv = setInterval(()=>{
+    countdown -= 1;
+    if(inner) inner.textContent = `Verifying... ${countdown}s`;
+    if(countdown <= 0) {
+      clearInterval(iv);
+      btn.classList.remove('verifying');
+      btn.classList.remove('click-verify');
+      btn.classList.add('done');
+      if(inner) inner.textContent = 'Verified';
+      btn.setAttribute('aria-disabled','true');
+      btn.style.pointerEvents = 'none';
+      const allDone = ACTION_IDS.every(x => {
+        const el = document.getElementById(x);
+        return el && el.classList.contains('done');
+      });
+      if(allDone) {
+        const placeholder = document.getElementById('verified_placeholder');
+        if(placeholder) {
+          const actionsArea = document.getElementById('actions_area');
+          if(actionsArea) {
+            const nodes = actionsArea.querySelectorAll('.action-item, a.btn');
+            nodes.forEach(n=> n.style.display = 'none');
+          }
+          const vb = document.createElement('div');
+          vb.className = 'verified-replacement';
+          vb.textContent = 'Verified';
+          placeholder.appendChild(vb);
+          placeholder.style.display = 'block';
+        }
+      }
+    }
+  }, 1000);
+}
+
+window.addEventListener('load', ()=>{
+  ACTION_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.removeAttribute('onclick');
+    const link = el.getAttribute('data-href') || el.getAttribute('href') || '#';
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      if(el.classList.contains('done') || el.classList.contains('verifying')) return;
+      unlock(id, link);
+    });
+  });
 });

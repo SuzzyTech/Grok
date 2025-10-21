@@ -27,13 +27,15 @@
       </div>
 
       <ul class="action-list" role="list">
+<div id="actions_area">
+  <div id="verified_placeholder" style="display:none; margin-top:12px;"></div>
         <li class="action-item">
           <div class="left">
             <div class="title">Subscribe on YouTube</div>
             <div class="note">Tap to open our YouTube channel — click subscribe manually.</div>
           </div>
           <div class="right">
-            <a id="btn_action_sub" class="click-verify btn ver-btn" href="#" onclick="unlock('btn_action_sub','https://www.youtube.com/@SuzzyTech?sub_confirmation=1'); return false;">
+            <a id="btn_action_sub" class="click-verify btn ver-btn" href="#" 
               <span class="inner">Click to verify</span>
               <span class="live-gradient"></span>
               <span class="spinner" aria-hidden="true"></span>
@@ -49,7 +51,7 @@
             <div class="note">Open the WhatsApp channel and click “Follow.”</div>
           </div>
           <div class="right">
-            <a id="btn_action_wh_chan" class="click-verify btn ver-btn" href="#" onclick="unlock('btn_action_wh_chan','https://whatsapp.com/channel/0029Vb6czaK3GJP2Dngjjj09'); return false;">
+            <a id="btn_action_wh_chan" class="click-verify btn ver-btn" href="#" 
               <span class="inner">Click to verify</span>
               <span class="live-gradient"></span>
               <span class="spinner" aria-hidden="true"></span>
@@ -65,7 +67,7 @@
             <div class="note">Tap to open the WhatsApp group and join.</div>
           </div>
           <div class="right">
-            <a id="btn_action_wh_group" class="click-verify btn ver-btn" href="#" onclick="unlock('btn_action_wh_group','https://chat.whatsapp.com/DnPNfu7Di8c66664EEE9NE?mode=ems_copy_t'); return false;">
+            <a id="btn_action_wh_group" class="click-verify btn ver-btn" href="#" 
               <span class="inner">Click to verify</span>
               <span class="live-gradient"></span>
               <span class="spinner" aria-hidden="true"></span>
@@ -74,7 +76,8 @@
             <div class="status" id="status_action_wh_group">Not started</div>
           </div>
         </li>
-      </ul>
+      </div>
+</ul>
     </section>
 
     <section class="card prompt-card" aria-label="Prompt area">
