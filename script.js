@@ -1,133 +1,83 @@
-// Final build - fully manual 15s simulated verification, moving inner gradient, overlay-safe buttons, pulse on unlock
-const ACTIONS = [
-  { id: 'action_sub', url: 'https://www.youtube.com/@SuzzyTech?sub_confirmation=1' },
-  { id: 'action_wh_chan', url: 'https://whatsapp.com/channel/0029Vb6czaK3GJP2Dngjjj09' },
-  { id: 'action_wh_group', url: 'https://chat.whatsapp.com/DnPNfu7Di8c66664EEE9NE?mode=ems_copy_t' }
-];
-
+// Unlock method adapted from uploaded site: manual open + countdown unlock
+const ACTION_IDS = ['btn_action_sub','btn_action_wh_chan','btn_action_wh_group'];
 const REQUIRED_SECONDS = 15;
-const state = {};
+function unlock(id, link) {
+  // open the link in a new tab (user gesture)
+  window.open(link, '_blank');
 
-const bigProgress = document.getElementById('bigProgress');
-const lockedOverlay = document.getElementById('lockedOverlay');
-const lockedText = document.getElementById('lockedText');
-const promptText = document.getElementById('promptText');
-const copyBtn = document.getElementById('copyBtn');
-const gotoBtn = document.getElementById('gotoBtn');
+  const btn = document.getElementById(id);
+  const statusId = id.replace('btn_','status_');
+  const statusEl = document.getElementById(statusId);
+  let countdown = REQUIRED_SECONDS;
 
-function safeOpen(url) {
-  try {
-    const w = window.open(url, '_blank');
-    if (!w) console.warn('Popup blocked:', url);
-    return w;
-  } catch (e) {
-    console.warn('open failed', e);
-  }
-  return null;
-}
-
-ACTIONS.forEach(a => {
-  state[a.id] = { verified: false, timer: null, remaining: REQUIRED_SECONDS };
-  const btn = document.getElementById('btn_' + a.id);
-  const status = document.getElementById('status_' + a.id);
-  const spinner = btn.querySelector('.spinner');
-  const countNode = btn.querySelector('.count');
-  const liveGrad = btn.querySelector('.live-gradient');
-
-  if (localStorage.getItem('verified_' + a.id) === '1') {
-    markVerified(a.id);
-  }
-
-  btn.addEventListener('click', () => {
-    if (state[a.id].verified) return;
-    safeOpen(a.url);
-    startSimulatedVerification(a.id, btn, status, spinner, countNode, liveGrad);
-  });
-});
-
-function startSimulatedVerification(id, btn, statusEl, spinnerEl, countNode, liveGrad) {
-  if (state[id].timer) clearInterval(state[id].timer);
-
+  // show verifying state
   btn.classList.add('verifying');
-  liveGrad.style.display = 'block';
-  btn.querySelector('.inner').textContent = 'Verifying...';
-
-  let remaining = REQUIRED_SECONDS;
-  countNode.style.display = 'inline-block';
-  countNode.textContent = remaining + 's';
+  btn.querySelector('.inner').textContent = `Verifying... ${countdown}s`;
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
   statusEl.textContent = 'Verifying...';
 
-  const t = setInterval(() => {
-    remaining -= 1;
-    if (remaining <= 0) {
-      clearInterval(t);
-      state[id].timer = null;
-      state[id].verified = true;
-      localStorage.setItem('verified_' + id, '1');
+  const timer = setInterval(()=>{
+    countdown--;
+    const inner = btn.querySelector('.inner');
+    if (countdown <= 0) {
+      clearInterval(timer);
+      // mark as unlocked for this button
       btn.classList.remove('verifying');
-      spinnerEl.style.display = 'none';
-      countNode.style.display = 'none';
+      btn.querySelector('.inner').textContent = '✅ Verified';
       statusEl.innerHTML = '<span class="verified-badge">Verified</span>';
-      btn.querySelector('.inner').textContent = 'Verified';
-      btn.disabled = true;
-      liveGrad.style.display = 'none';
-      checkAllAndUnlock();
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      // disable further clicks and mark done
+      btn.setAttribute('data-verified','1');
+      btn.removeAttribute('onclick'); // remove unlock handler
+      updateProgress();
+      checkAllAndReveal();
+      return;
     } else {
-      countNode.textContent = remaining + 's';
-      spinnerEl.style.display = 'inline-block';
+      inner.textContent = `Verifying... ${countdown}s`;
+      statusEl.textContent = `Verifying... ${countdown}s`;
     }
-    updateProgressDisplay();
   }, 1000);
-  state[id].timer = t;
-  updateProgressDisplay();
 }
 
-function markVerified(id) {
-  const btn = document.getElementById('btn_' + id);
-  const status = document.getElementById('status_' + id);
-  if (btn) {
-    btn.disabled = true;
-    btn.querySelector('.spinner').style.display = 'none';
-    btn.querySelector('.count').style.display = 'none';
-    btn.querySelector('.inner').textContent = 'Verified';
-  }
-  if (status) status.innerHTML = '<span class="verified-badge">Verified</span>';
-  state[id].verified = true;
-  updateProgressDisplay();
-  checkAllAndUnlock();
+function updateProgress(){
+  const done = ACTION_IDS.reduce((acc,id)=> acc + (document.getElementById(id).getAttribute('data-verified') === '1' ? 1 : 0), 0);
+  const display = document.getElementById('bigProgress');
+  display.textContent = `You have completed ${done} of ${ACTION_IDS.length} verifications`;
+  const lockedText = document.getElementById('lockedText');
+  lockedText.textContent = `Please verify all buttons below to access the free AI video generator. (${done}/${ACTION_IDS.length})`;
 }
 
-function updateProgressDisplay() {
-  const done = ACTIONS.filter(a => state[a.id].verified || localStorage.getItem('verified_' + a.id) === '1').length;
-  bigProgress.textContent = `You have completed ${done} of ${ACTIONS.length} verifications`;
-  lockedText.textContent = `Please verify all buttons below to access the free AI video generator. (${done}/${ACTIONS.length})`;
-}
-
-function checkAllAndUnlock() {
-  updateProgressDisplay();
-  const all = ACTIONS.every(a => state[a.id].verified || localStorage.getItem('verified_' + a.id) === '1');
+function checkAllAndReveal(){
+  const all = ACTION_IDS.every(id => document.getElementById(id).getAttribute('data-verified') === '1');
   if (all) {
-    lockedOverlay.style.display = 'none';
-    promptText.style.display = 'block';
+    // reveal prompt and enable copy + access
+    document.getElementById('lockedOverlay').style.display = 'none';
+    document.getElementById('promptText').style.display = 'block';
+    const copyBtn = document.getElementById('copyBtn');
     copyBtn.disabled = false;
     copyBtn.classList.add('ready');
+    const gotoBtn = document.getElementById('gotoBtn');
     gotoBtn.classList.remove('disabled');
     gotoBtn.classList.add('pulse');
+    gotoBtn.href = 'https://accounts.x.ai/sign-up?redirect=grok-com';
     gotoBtn.removeAttribute('aria-disabled');
-    promptText.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // scroll to prompt
+    document.getElementById('promptText').scrollIntoView({behavior:'smooth', block:'center'});
   }
 }
 
-copyBtn.addEventListener('click', () => {
-  const txt = promptText.textContent.trim();
-  navigator.clipboard.writeText(txt).then(() => {
-    copyBtn.querySelector('.inner-copy').textContent = 'Copied!';
-    setTimeout(() => copyBtn.querySelector('.inner-copy').textContent = 'Copy prompt', 2000);
-  }).catch(() => {
-    alert('Copy failed. Please copy manually.');
-  });
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  const txt = document.getElementById('promptText').textContent.trim();
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    btn.querySelector('.inner-copy').textContent = 'Copied!';
+    setTimeout(()=> btn.querySelector('.inner-copy').textContent = 'Copy prompt', 2000);
+  }).catch(()=> alert('Copy failed — please select and copy manually.'));
 });
 
-window.addEventListener('load', () => {
-  updateProgressDisplay();
+// initialize progress from any verified attributes (if user reloads)
+window.addEventListener('load', ()=>{
+  updateProgress();
 });
