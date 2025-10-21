@@ -1,4 +1,4 @@
-// Final polished site script - manual verification only
+// Final build 2 script - ensures overlay doesn't block buttons, 15s simulated verify, moving inner gradient inside buttons, pulse on access when unlocked
 const ACTIONS = [
   { id: 'action_sub', url: 'https://www.youtube.com/@SuzzyTech?sub_confirmation=1' },
   { id: 'action_wh_chan', url: 'https://whatsapp.com/channel/0029Vb6czaK3GJP2Dngjjj09' },
@@ -16,7 +16,6 @@ const gotoBtn = document.getElementById('gotoBtn');
 
 function safeOpen(url){
   try{
-    // attempt to open in a new tab/window on user gesture
     const w = window.open(url, '_blank');
     if(!w) console.warn('Popup blocked or failed to open:', url);
     return w;
@@ -30,34 +29,35 @@ ACTIONS.forEach(a=>{
   const status = document.getElementById('status_'+a.id);
   const spinner = btn.querySelector('.spinner');
   const countNode = btn.querySelector('.count');
+  const liveGrad = btn.querySelector('.live-gradient');
 
   // hydrate from localStorage
   if(localStorage.getItem('verified_'+a.id) === '1'){
     markVerified(a.id);
   }
 
-  btn.addEventListener('click', ()=>{
+  btn.addEventListener('click', (e)=>{
     if(state[a.id].verified) return;
     // open link (user gesture)
     safeOpen(a.url);
-    // UI changes: show verifying and countdown; do not revert to Open & Verify
-    startSimulatedVerification(a.id, btn, status, spinner, countNode);
+    // start visual verification
+    startSimulatedVerification(a.id, btn, status, spinner, countNode, liveGrad);
   });
 });
 
-function startSimulatedVerification(id, btn, statusEl, spinnerEl, countNode){
-  // clear any previous timer for this id
+function startSimulatedVerification(id, btn, statusEl, spinnerEl, countNode, liveGrad){
   if(state[id].timer) clearInterval(state[id].timer);
 
-  // UI: show spinner and countdown
-  spinnerEl.style.display = 'inline-block';
-  countNode.style.display = 'inline-block';
+  // show inner moving gradient and spinner/count
+  btn.classList.add('verifying');
+  liveGrad.style.display = 'block';
+  // ensure inner text updates
+  btn.querySelector('.inner').textContent = 'Verifying...';
+
   let remaining = REQUIRED_SECONDS;
+  countNode.style.display = 'inline-block';
   countNode.textContent = remaining + 's';
   statusEl.textContent = 'Verifying...';
-
-  // ensure button text doesn't go back to Open & Verify on subsequent clicks
-  btn.querySelector('.btn-inner').textContent = 'Verifying...';
 
   const t = setInterval(()=>{
     remaining -= 1;
@@ -66,15 +66,19 @@ function startSimulatedVerification(id, btn, statusEl, spinnerEl, countNode){
       state[id].timer = null;
       state[id].verified = true;
       localStorage.setItem('verified_'+id, '1');
+      // hide spinner/count and lock UI
+      btn.classList.remove('verifying');
       spinnerEl.style.display = 'none';
       countNode.style.display = 'none';
       statusEl.innerHTML = '<span class="verified-badge">Verified</span>';
-      // final button text
-      btn.querySelector('.btn-inner').textContent = 'Verified';
+      btn.querySelector('.inner').textContent = 'Verified';
       btn.disabled = true;
+      // mark visually liveGrad left as hidden but keep effect subtle
+      liveGrad.style.display = 'none';
       checkAllAndUnlock();
     } else {
       countNode.textContent = remaining + 's';
+      spinnerEl.style.display = 'inline-block';
     }
     updateProgressDisplay();
   }, 1000);
@@ -82,8 +86,15 @@ function startSimulatedVerification(id, btn, statusEl, spinnerEl, countNode){
   updateProgressDisplay();
 }
 
-def markVerified(id):
-    pass  # placeholder to keep parity with previous plan
+function markVerified(id){
+  const btn = document.getElementById('btn_'+id);
+  const status = document.getElementById('status_'+id);
+  if(btn){ btn.disabled = true; btn.querySelector('.spinner').style.display = 'none'; btn.querySelector('.count').style.display = 'none'; btn.querySelector('.inner').textContent = 'Verified'; }
+  if(status){ status.innerHTML = '<span class="verified-badge">Verified</span>'; }
+  state[id].verified = true;
+  updateProgressDisplay();
+  checkAllAndUnlock();
+}
 
 function updateProgressDisplay(){
   const done = ACTIONS.filter(a => state[a.id].verified || localStorage.getItem('verified_'+a.id) === '1').length;
@@ -101,8 +112,9 @@ function checkAllAndUnlock(){
     copyBtn.disabled = false;
     copyBtn.classList.add('ready');
     gotoBtn.classList.remove('disabled');
+    gotoBtn.classList.add('pulse');
     gotoBtn.removeAttribute('aria-disabled');
-    // scroll into view smoothly on mobile
+    // scroll into view smoothly
     promptText.scrollIntoView({behavior:'smooth', block:'center'});
   }
 }
@@ -111,8 +123,8 @@ function checkAllAndUnlock(){
 copyBtn.addEventListener('click', ()=>{
   const txt = promptText.textContent.trim();
   navigator.clipboard.writeText(txt).then(()=>{
-    copyBtn.textContent = 'Copied!';
-    setTimeout(()=> copyBtn.textContent = 'Copy prompt', 2000);
+    copyBtn.querySelector('.inner-copy').textContent = 'Copied!';
+    setTimeout(()=> copyBtn.querySelector('.inner-copy').textContent = 'Copy prompt', 2000);
   }).catch(()=>{
     alert('Copy failed. Please select the prompt and copy manually.');
   });

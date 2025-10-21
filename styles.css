@@ -1,4 +1,4 @@
-/* Dark Tech Glow - Final */
+/* Final build 2 - dark tech, moving inner gradient, non-blocking overlay */
 :root{
   --bg1:#03040a; --bg2:#071226;
   --muted:#9aa3b2;
@@ -8,26 +8,18 @@
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   color:#e6eef6;
 }
-
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:radial-gradient(900px 400px at 10% 10%, rgba(123,97,255,0.06), transparent), linear-gradient(180deg,var(--bg1),var(--bg2));-webkit-font-smoothing:antialiased}
 .page{max-width:980px;margin:0 auto;padding:18px;display:flex;flex-direction:column;gap:18px;min-height:100vh}
-
-/* Header */
 .hero{display:flex;align-items:center;gap:12px}
 .brand{display:flex;gap:12px;align-items:center}
 .logo{width:64px;height:64px;border-radius:12px;padding:8px;background:linear-gradient(135deg,var(--accent3),#ff7a59);display:block;flex-shrink:0}
 .titles h1{font-size:18px;margin:0}
 .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px}
-
-/* Card */
 .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
-
-/* Actions */
 .intro{display:flex;flex-direction:column;gap:8px}
 .progress-display{font-weight:800;font-size:15px;color:var(--muted)}
 .muted{color:var(--muted)}
-
 .action-list{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:12px}
 .action-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);background:var(--glass)}
 .left{max-width:62%}
@@ -35,34 +27,46 @@ html,body{height:100%;margin:0;background:radial-gradient(900px 400px at 10% 10%
 .note{font-size:13px;color:var(--muted);margin-top:6px}
 .right{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:140px}
 
-/* Glow button with moving outline */
-.glow-btn{position:relative;overflow:visible;padding:10px 14px;border-radius:12px;border:0;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));color:#fff;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-width:140px;justify-content:center}
-.glow-btn::before{content:'';position:absolute;inset:-3px;border-radius:16px;padding:2px;background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask-composite:exclude; animation: move 3s linear infinite; opacity:0.95}
-@keyframes move{0%{transform:translateX(-20%)}50%{transform:translateX(20%)}100%{transform:translateX(-20%)}}
-.glow-btn .spinner{display:none;border-radius:50%;width:16px;height:16px;border:3px solid rgba(255,255,255,0.08);border-top-color:var(--accent2);animation:spin 0.9s linear infinite;margin-left:8px}
+/* Button base */
+.btn{position:relative;overflow:visible;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#fff;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-width:140px;justify-content:center}
+.btn:focus{outline:none;box-shadow:0 0 0 4px rgba(0,0,0,0.2)}
+
+/* live inner gradient element - moving gradient inside button */
+.btn .live-gradient{position:absolute;inset:2px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));filter:blur(18px);opacity:0;transition:opacity .25s, transform .25s;z-index:1;pointer-events:none}
+.btn .inner{position:relative;z-index:3}
+
+/* spinner & count */
+.btn .spinner{display:none;position:relative;z-index:3;border-radius:50%;width:16px;height:16px;border:3px solid rgba(255,255,255,0.08);border-top-color:var(--accent2);animation:spin 0.9s linear infinite;margin-left:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.glow-btn .count{font-weight:900;font-size:13px;opacity:0.95;display:none}
+.btn .count{font-weight:900;font-size:13px;opacity:0.95;display:none;position:relative;z-index:3}
+
+/* when verifying: show moving inner gradient (clip to padding box) and spinner/count */
+.btn.verifying .live-gradient{opacity:0.95;transform:translateX(-10%);animation:moveGradient 3s linear infinite}
+.btn.verifying .spinner{display:inline-block}
+.btn.verifying .count{display:inline-block}
+@keyframes moveGradient{0%{transform:translateX(-20%)}50%{transform:translateX(20%)}100%{transform:translateX(-20%)}}
 
 /* status */
 .status{font-size:13px;color:var(--muted);text-align:right}
 
 /* Prompt area */
 .prompt-card{display:flex;flex-direction:column;gap:12px}
-.prompt-container{position:relative;min-height:120px}
-.locked-overlay{position:absolute;inset:0;border-radius:12px;background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.65));display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:18px;backdrop-filter: blur(6px);z-index:6}
+.prompt-container{position:relative;min-height:120px;padding-top:6px}
+.locked-overlay{position:absolute;left:0;right:0;bottom:0;top:0;border-radius:12px;background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.65));display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:18px;backdrop-filter: blur(6px);z-index:4;pointer-events:none}
 .locked-inner{text-align:center;color:var(--muted)}
 .locked-text{font-size:15px;color:#fff}
-.prompt-text{white-space:pre-wrap;background:transparent;padding:12px;border-radius:10px;line-height:1.4;border:1px solid rgba(255,255,255,0.02);margin-top:12px;font-size:15px;z-index:2}
+.prompt-text{white-space:pre-wrap;background:transparent;padding:12px;border-radius:10px;line-height:1.4;border:1px solid rgba(255,255,255,0.02);margin-top:12px;font-size:15px;z-index:2;position:relative}
 
-/* Copy and Access buttons */
-.prompt-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.copy-btn{padding:10px 14px;border-radius:12px;border:0;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#fff;font-weight:900;cursor:pointer;min-width:160px;position:relative}
-.copy-btn.rainbow{box-shadow:0 8px 30px rgba(0,0,0,0.6);overflow:visible}
-.copy-btn.rainbow::before{content:'';position:absolute;inset:-4px;border-radius:16px;padding:3px;background:linear-gradient(90deg,#ff4d4f,#7b61ff,#00d4ff);-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask-composite:exclude; animation:move 3s linear infinite; z-index:-1}
-.copy-btn:disabled{opacity:0.6;cursor:not-allowed}
-.access-btn{padding:10px 14px;border-radius:12px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-width:240px}
-.access-btn.disabled{opacity:0.6;pointer-events:none;border:1px solid rgba(255,255,255,0.03);background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:var(--muted)}
-.access-btn:not(.disabled){background:linear-gradient(90deg,var(--accent2),var(--accent1));color:#051322;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+/* Copy button with moving inner gradient */
+.copy-btn{position:relative;padding:10px 14px;border-radius:12px;border:0;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#fff;font-weight:900;cursor:pointer;min-width:160px;overflow:visible}
+.copy-btn .live-gradient-copy{position:absolute;inset:3px;border-radius:9px;background:linear-gradient(90deg,#ff4d4f,#7b61ff,#00d4ff);filter:blur(16px);opacity:0;transition:opacity .25s;z-index:1;pointer-events:none}
+.copy-btn .inner-copy{position:relative;z-index:3}
+.copy-btn.ready .live-gradient-copy{opacity:0.95;animation:moveGradient 3s linear infinite}
+
+/* Access button */
+.access-btn{padding:10px 14px;border-radius:12px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-width:240px;border:1px solid rgba(255,255,255,0.03);background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:var(--muted)}
+.access-btn.pulse{animation:pulse 2s ease-in-out infinite;background:linear-gradient(90deg,var(--accent2),var(--accent1));color:#051322;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
 
 /* Verified badge */
 .verified-badge{display:inline-block;padding:8px 12px;border-radius:20px;background:linear-gradient(90deg,#7bf7a3,#5be0c8);color:#04210f;font-weight:900;margin-top:10px}
