@@ -15,7 +15,9 @@
         <img src="assets/logo.svg" alt="SuzzyTech logo" class="logo">
         <div class="titles">
           <h1>Your Cinematic AI Prompt and Tool</h1>
-          <p class="subtitle">Complete all 3 verification steps below to unlock your cinematic AI prompt and access the free AI tool.</p>
+          <p class="subtitle">
+            Complete all 3 verification steps below to unlock your cinematic AI prompt and access the free AI video generator.
+          </p>
         </div>
       </div>
     </header>
@@ -23,18 +25,21 @@
     <section class="card actions" aria-label="Verification actions">
       <div class="intro">
         <div class="progress-display" id="bigProgress">You have completed 0 of 3 verifications</div>
-        <p class="muted">Tap each button to open the platform. A simulated verification will run for that button. When all three are complete the prompt and access button will be revealed.</p>
+        <p class="muted">
+          Tap each button to open the platform. A short 15-second manual verification will run for each.
+          When all three are complete, your AI prompt and access link will be revealed.
+        </p>
       </div>
 
       <ul class="action-list" role="list">
         <li class="action-item">
           <div class="left">
             <div class="title">Subscribe on YouTube</div>
-            <div class="note">Tap to open our YouTube channel — click subscribe.</div>
+            <div class="note">Tap to open our YouTube channel — click subscribe manually.</div>
           </div>
           <div class="right">
-            <button class="btn ver-btn" id="btn_action_sub" data-url="https://www.youtube.com/@SuzzyTech?sub_confirmation=1" aria-live="polite">
-              <span class="inner">Open & Verify</span>
+            <button class="btn ver-btn" id="btn_action_sub">
+              <span class="inner">Open</span>
               <span class="live-gradient"></span>
               <span class="spinner" aria-hidden="true"></span>
               <span class="count" aria-hidden="true"></span>
@@ -46,11 +51,11 @@
         <li class="action-item">
           <div class="left">
             <div class="title">Follow our WhatsApp Channel</div>
-            <div class="note">Open the WhatsApp channel and click follow.</div>
+            <div class="note">Open the WhatsApp channel and click “Follow.”</div>
           </div>
           <div class="right">
-            <button class="btn ver-btn" id="btn_action_wh_chan" data-url="https://whatsapp.com/channel/0029Vb6czaK3GJP2Dngjjj09">
-              <span class="inner">Open & Verify</span>
+            <button class="btn ver-btn" id="btn_action_wh_chan">
+              <span class="inner">Open</span>
               <span class="live-gradient"></span>
               <span class="spinner" aria-hidden="true"></span>
               <span class="count" aria-hidden="true"></span>
@@ -62,11 +67,11 @@
         <li class="action-item">
           <div class="left">
             <div class="title">Join our WhatsApp Group</div>
-            <div class="note">Join the group invite and tap join.</div>
+            <div class="note">Tap to open the WhatsApp group and join.</div>
           </div>
           <div class="right">
-            <button class="btn ver-btn" id="btn_action_wh_group" data-url="https://chat.whatsapp.com/DnPNfu7Di8c66664EEE9NE?mode=ems_copy_t">
-              <span class="inner">Open & Verify</span>
+            <button class="btn ver-btn" id="btn_action_wh_group">
+              <span class="inner">Open</span>
               <span class="live-gradient"></span>
               <span class="spinner" aria-hidden="true"></span>
               <span class="count" aria-hidden="true"></span>
@@ -80,27 +85,39 @@
     <section class="card prompt-card" aria-label="Prompt area">
       <h2 class="muted">✨ Your Cinematic AI Prompt</h2>
       <div class="prompt-container">
-        <!-- Locked overlay is now non-blocking for buttons (only covers prompt area) -->
+        <!-- Overlay now only blocks prompt area, not buttons -->
         <div id="lockedOverlay" class="locked-overlay" aria-hidden="false">
           <div class="locked-inner">
             <div class="lock-icon">🔒</div>
-            <div class="locked-text"><strong id="lockedText">Please verify all buttons below to access the free AI video generator. (0/3)</strong></div>
-            <div class="hint muted">You’ll be able to copy the prompt and access the AI tool after completing all 3 actions.</div>
+            <div class="locked-text">
+              <strong id="lockedText">
+                Please verify all buttons below to access the free AI video generator. (0/3)
+              </strong>
+            </div>
+            <div class="hint muted">
+              You’ll be able to copy the prompt and access the AI generator after completing all 3 actions.
+            </div>
           </div>
         </div>
 
-        <pre id="promptText" class="prompt-text" style="display:none;">A cinematic slow-motion shot of a woman dancing gracefully in an open studio with sunlight streaming through large windows.
+        <pre id="promptText" class="prompt-text" style="display:none;">
+A cinematic slow-motion shot of a woman dancing gracefully in an open studio with sunlight streaming through large windows.
 Her movements are confident and smooth, hair flowing as she spins and moves to the rhythm.
 Soft dust particles float in the warm light, camera follows her motion in smooth arcs.
 No text, no captions, no speech — just natural motion and light.
-High contrast, elegant atmosphere, 4K quality, 24fps, ultra-realistic lighting.</pre>
+High contrast, elegant atmosphere, 4K quality, 24fps, ultra-realistic lighting.
+        </pre>
 
         <div class="prompt-actions">
           <button class="copy-btn rainbow" id="copyBtn" disabled>
             <span class="inner-copy">Copy prompt</span>
             <span class="live-gradient-copy"></span>
           </button>
-          <a class="access-btn disabled" id="gotoBtn" href="https://accounts.x.ai/sign-up?redirect=grok-com" target="_blank" rel="noopener" aria-disabled="true">Click to Access Free AI Video Generator</a>
+          <a class="access-btn disabled" id="gotoBtn" 
+             href="https://accounts.x.ai/sign-up?redirect=grok-com" 
+             target="_blank" rel="noopener" aria-disabled="true">
+            Click to Access Free AI Video Generator
+          </a>
         </div>
       </div>
     </section>
