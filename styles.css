@@ -157,3 +157,10 @@ html, body {
   .logo { width:84px; height:84px; }
   .progress-display { font-size:16px; }
 }
+
+
+
+/* Make the Click-to-verify button glow by default */
+.click-verify .live-gradient { opacity:0.95; transform:translateX(0); animation:moveGradient 3s linear infinite; }
+/* But when the button is in verifying state, remove the glow (no "rubbish glowing effect") */
+.verifying .live-gradient { opacity:0 !important; animation: none !important; transform:none !important; }
