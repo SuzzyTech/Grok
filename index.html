@@ -3,86 +3,103 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Free Unlimited AI-Generated Videos — SuzzyTech</title>
-  <meta name="description" content="Unlock a free unlimited AI video prompt. Complete quick verifications and copy the cinematic prompt.">
-  <link rel="icon" href="assets/favicon.png">
+  <title>Create Free & Unlimited AI‑Generated Videos — SuzzyTech</title>
+  <meta name="description" content="Unlock cinematic AI video prompts. Complete three simple steps to reveal and copy the prompt. Mobile-first, dark tech glow.">
+  <link rel="icon" href="assets/favicon.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="container">
-    <header class="header">
+  <main class="page">
+    <header class="hero">
       <div class="brand">
-        <img src="assets/logo.png" alt="SuzzyTech" class="logo">
-        <div>
-          <h1>Free Unlimited AI Video Prompts</h1>
-          <p class="sub">Complete the quick checks below to unlock the cinematic prompt. Mobile-first, fast, and official-looking.</p>
+        <img src="assets/logo.svg" alt="SuzzyTech logo" class="logo">
+        <div class="titles">
+          <h1>Create Free & Unlimited AI‑Generated Videos</h1>
+          <p class="subtitle">Follow three simple steps to unlock a powerful cinematic prompt — mobile optimized, fast, and official looking.</p>
         </div>
       </div>
     </header>
 
     <section class="card actions" aria-label="Verification actions">
-      <p class="muted">Tap each button to open the platform. Keep the tab open for <strong>15 seconds</strong>. When all three are verified the prompt will unlock.</p>
-      <ul class="action-list">
-        <li class="action-item" id="action_sub">
-          <div class="info">
+      <div class="intro">
+        <div class="progress-display" id="bigProgress">0 / 3</div>
+        <p class="muted">Tap each button to open the platform. A simulated verification will run — when all three are complete the prompt unlocks.</p>
+      </div>
+
+      <ul class="action-list" role="list">
+        <li class="action-item">
+          <div class="left">
             <div class="title">Subscribe on YouTube</div>
-            <div class="note">You must subscribe to our YouTube channel</div>
+            <div class="note">Subscribe to our channel</div>
           </div>
-          <div class="controls">
-            <button class="btn primary" data-id="action_sub" id="btn_action_sub">Open & Verify</button>
+          <div class="right">
+            <button class="glow-btn" id="btn_action_sub" data-url="https://www.youtube.com/@SuzzyTech?sub_confirmation=1" aria-live="polite">
+              <span class="btn-inner">Open & Verify</span>
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="count" aria-hidden="true"></span>
+            </button>
             <div class="status" id="status_action_sub">Not started</div>
           </div>
         </li>
 
-        <li class="action-item" id="action_wh_chan">
-          <div class="info">
+        <li class="action-item">
+          <div class="left">
             <div class="title">Follow our WhatsApp Channel</div>
             <div class="note">Open and follow the channel</div>
           </div>
-          <div class="controls">
-            <button class="btn primary" data-id="action_wh_chan" id="btn_action_wh_chan">Open & Verify</button>
+          <div class="right">
+            <button class="glow-btn" id="btn_action_wh_chan" data-url="https://whatsapp.com/channel/0029Vb6czaK3GJP2Dngjjj09">
+              <span class="btn-inner">Open & Verify</span>
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="count" aria-hidden="true"></span>
+            </button>
             <div class="status" id="status_action_wh_chan">Not started</div>
           </div>
         </li>
 
-        <li class="action-item" id="action_wh_group">
-          <div class="info">
+        <li class="action-item">
+          <div class="left">
             <div class="title">Join our WhatsApp Group</div>
             <div class="note">Join the group invite</div>
           </div>
-          <div class="controls">
-            <button class="btn primary" data-id="action_wh_group" id="btn_action_wh_group">Open & Verify</button>
+          <div class="right">
+            <button class="glow-btn" id="btn_action_wh_group" data-url="https://chat.whatsapp.com/DnPNfu7Di8c66664EEE9NE?mode=ems_copy_t">
+              <span class="btn-inner">Open & Verify</span>
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="count" aria-hidden="true"></span>
+            </button>
             <div class="status" id="status_action_wh_group">Not started</div>
           </div>
         </li>
       </ul>
-      <div class="progress" id="progress">0 / 3 verified</div>
     </section>
 
-    <section class="card prompt" aria-label="Unlocked prompt area">
-      <h2>Unlocked Prompt</h2>
-      <p class="muted small">After verification the prompt box will reveal. Copy and use it to generate cinematic AI videos.</p>
-      <div class="prompt-box locked" id="promptMask" aria-hidden="false">
-        <div class="lock-inner">
-          <strong>Locked</strong>
-          <p class="muted">Complete all verifications to reveal the prompt</p>
+    <section class="card prompt-card" aria-label="Prompt area">
+      <h2 class="muted">Unlocked Prompt</h2>
+      <div class="prompt-container">
+        <div id="lockedOverlay" class="locked-overlay">
+          <div class="locked-inner">
+            <div class="lock-icon">🔒</div>
+            <div class="locked-text"><strong id="lockedText">Locked — 0/3 verified</strong></div>
+            <div class="hint muted">Complete all steps to reveal the cinematic prompt.</div>
+          </div>
         </div>
-      </div>
 
-      <pre id="promptText" class="prompt-text" style="display:none;">A cinematic slow-motion shot of a woman dancing gracefully in an open studio with sunlight streaming through large windows.
+        <pre id="promptText" class="prompt-text" style="display:none;">A cinematic slow-motion shot of a woman dancing gracefully in an open studio with sunlight streaming through large windows.
 Her movements are confident and smooth, hair flowing as she spins and moves to the rhythm.
 Soft dust particles float in the warm light, camera follows her motion in smooth arcs.
 No text, no captions, no speech — just natural motion and light.
 High contrast, elegant atmosphere, 4K quality, 24fps, ultra-realistic lighting.</pre>
 
-      <div class="prompt-actions">
-        <button class="btn ghost" id="copyBtn" disabled>Copy prompt</button>
-        <a class="btn primary" id="gotoBtn" href="https://accounts.x.ai/sign-up?redirect=grok-com" target="_blank" rel="noopener" aria-disabled="true">Sign up for Grok</a>
+        <div class="prompt-actions">
+          <button class="copy-btn" id="copyBtn" disabled>Copy prompt</button>
+          <a class="access-btn disabled" id="gotoBtn" href="https://accounts.x.ai/sign-up?redirect=grok-com" target="_blank" rel="noopener" aria-disabled="true">Sign up for Grok</a>
+        </div>
       </div>
     </section>
 
-    <footer class="footer">
-      <small>Designed by SuzzyTech • Host on GitHub Pages or Vercel. This page uses time-locked client verification (not full-proof).</small>
+    <footer class="footer muted">
+      SuzzyTech • Official • Mobile optimized • Note: verification is simulated client-side.
     </footer>
   </main>
 

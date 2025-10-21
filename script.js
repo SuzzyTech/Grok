@@ -1,4 +1,4 @@
-// Config
+// Final upgraded site script (retry)
 const ACTIONS = [
   { id: 'action_sub', url: 'https://www.youtube.com/@SuzzyTech?sub_confirmation=1' },
   { id: 'action_wh_chan', url: 'https://whatsapp.com/channel/0029Vb6czaK3GJP2Dngjjj09' },
@@ -7,96 +7,118 @@ const ACTIONS = [
 const REQUIRED_SECONDS = 15;
 
 // State
-const state = {};
+const state = {}; // id -> {verified, timer, remaining}
 
 // Elements
-const progressEl = document.getElementById('progress');
+const bigProgress = document.getElementById('bigProgress');
+const lockedOverlay = document.getElementById('lockedOverlay');
+const lockedText = document.getElementById('lockedText');
+const promptText = document.getElementById('promptText');
 const copyBtn = document.getElementById('copyBtn');
 const gotoBtn = document.getElementById('gotoBtn');
-const promptMask = document.getElementById('promptMask');
-const promptText = document.getElementById('promptText');
 
-// Setup buttons
-function setup(){
-  ACTIONS.forEach(a=>{
-    state[a.id] = { verified:false, timer:null, remaining:REQUIRED_SECONDS };
-    const btn = document.querySelector(`#btn_${a.id}`);
-    const status = document.getElementById(`status_${a.id}`);
-
-    // If stored in localStorage, mark verified
-    if(localStorage.getItem('verified_'+a.id)==='1'){
-      markVerified(a.id);
-    }
-
-    btn.addEventListener('click', ()=>{
-      startVerification(a, btn, status);
-    });
-  });
-  updateProgress();
+function safeOpen(url){
+  try{
+    const w = window.open(url, '_blank');
+    if(!w) console.warn('Popup blocked or failed to open:', url);
+    return w;
+  }catch(e){ console.warn('open failed', e); }
+  return null;
 }
 
-function startVerification(action, btn, statusEl){
-  if(state[action.id].verified) return;
-  // open link
-  const win = window.open(action.url, '_blank');
-  btn.disabled = true;
-  statusEl.textContent = 'Counting...';
+// Initialize actions
+ACTIONS.forEach(a=>{
+  state[a.id] = { verified:false, timer:null, remaining:REQUIRED_SECONDS };
+  const btn = document.getElementById('btn_'+a.id);
+  const status = document.getElementById('status_'+a.id);
+  const spinner = btn.querySelector('.spinner');
+  const countNode = btn.querySelector('.count');
+  // load from localStorage
+  if(localStorage.getItem('verified_'+a.id) === '1'){
+    markVerified(a.id);
+  }
+
+  btn.addEventListener('click', (e)=>{
+    if(state[a.id].verified) return;
+    // open url (user gesture)
+    safeOpen(a.url);
+    // start visual verification only for that action
+    startSimulatedVerification(a.id, btn, status, spinner, countNode);
+  });
+});
+
+function startSimulatedVerification(id, btn, statusEl, spinnerEl, countNode){
+  // clear existing
+  if(state[id].timer) clearInterval(state[id].timer);
+  spinnerEl.style.display = 'inline-block';
+  countNode.style.display = 'inline-block';
   let remaining = REQUIRED_SECONDS;
-  const timerId = setInterval(()=>{
+  countNode.textContent = remaining + 's';
+  statusEl.textContent = 'Verifying...';
+  btn.classList.add('verifying');
+  const t = setInterval(()=>{
     remaining -= 1;
-    statusEl.textContent = remaining + 's';
     if(remaining <= 0){
-      clearInterval(timerId);
-      state[action.id].verified = true;
-      localStorage.setItem('verified_'+action.id, '1');
-      markVerified(action.id);
+      clearInterval(t);
+      state[id].timer = null;
+      state[id].verified = true;
+      localStorage.setItem('verified_'+id, '1');
+      spinnerEl.style.display = 'none';
+      countNode.style.display = 'none';
+      statusEl.innerHTML = '<span class="verified-badge">Verified</span>';
+      btn.classList.remove('verifying');
+      btn.disabled = true;
+      checkAllAndUnlock();
+    } else {
+      countNode.textContent = remaining + 's';
     }
+    updateProgressDisplay();
   }, 1000);
-  state[action.id].timer = timerId;
+  state[id].timer = t;
+  updateProgressDisplay();
+}
+
+function updateProgressDisplay(){
+  const done = ACTIONS.filter(a => state[a.id].verified || localStorage.getItem('verified_'+a.id) === '1').length;
+  bigProgress.textContent = done + ' / ' + ACTIONS.length;
+  lockedText.textContent = 'Locked — ' + done + '/' + ACTIONS.length + ' verified';
 }
 
 function markVerified(id){
-  const btn = document.querySelector(`#btn_${id}`);
-  const status = document.getElementById(`status_${id}`);
-  if(btn){ btn.textContent = 'Verified'; btn.classList.remove('primary'); btn.classList.add('ghost'); btn.disabled = true; }
-  if(status){ status.innerHTML = '<span style="color:#7bf7a3;font-weight:800">Verified</span>'; }
-  updateProgress();
-  checkAll();
+  const btn = document.getElementById('btn_'+id);
+  const status = document.getElementById('status_'+id);
+  if(btn){ btn.disabled = true; btn.querySelector('.spinner').style.display = 'none'; btn.querySelector('.count').style.display = 'none'; }
+  if(status){ status.innerHTML = '<span class="verified-badge">Verified</span>'; }
+  state[id].verified = true;
+  updateProgressDisplay();
+  checkAllAndUnlock();
 }
 
-function updateProgress(){
-  const count = ACTIONS.filter(a => state[a.id].verified || localStorage.getItem('verified_'+a.id)==='1').length;
-  progressEl.textContent = `${count} / ${ACTIONS.length} verified`;
-}
-
-function checkAll(){
-  const all = ACTIONS.every(a => state[a.id].verified || localStorage.getItem('verified_'+a.id)==='1');
+function checkAllAndUnlock(){
+  updateProgressDisplay();
+  const all = ACTIONS.every(a => state[a.id].verified || localStorage.getItem('verified_'+a.id) === '1');
   if(all){
-    unlockPrompt();
+    lockedOverlay.style.display = 'none';
+    promptText.style.display = 'block';
+    copyBtn.disabled = false;
+    gotoBtn.classList.remove('disabled');
+    gotoBtn.removeAttribute('aria-disabled');
+    lockedText.textContent = 'Unlocked — All verified ✅';
+    promptText.scrollIntoView({behavior:'smooth', block:'center'});
   }
 }
 
-function unlockPrompt(){
-  // reveal prompt
-  if(promptMask){ promptMask.style.display = 'none'; promptText.style.display = 'block'; }
-  copyBtn.disabled = false;
-  gotoBtn.setAttribute('aria-disabled', 'false');
-  gotoBtn.classList.remove('ghost');
-  gotoBtn.classList.add('primary');
-  updateProgress();
-}
-
+// Copy prompt
 copyBtn.addEventListener('click', ()=>{
   const txt = promptText.textContent.trim();
   navigator.clipboard.writeText(txt).then(()=>{
     copyBtn.textContent = 'Copied!';
-    setTimeout(()=>copyBtn.textContent = 'Copy prompt', 2000);
+    setTimeout(()=> copyBtn.textContent = 'Copy prompt', 2000);
   }).catch(()=>{
-    alert('Copy failed. Please select the text and copy manually.');
+    alert('Copy failed. Please select the prompt and copy manually.');
   });
 });
 
-// On load
 window.addEventListener('load', ()=>{
-  setup();
+  updateProgressDisplay();
 });
